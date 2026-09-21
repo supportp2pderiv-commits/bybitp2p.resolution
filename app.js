@@ -460,8 +460,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnResend.classList.remove('disabled');
         btnResend.textContent = 'Resend Code';
       }
-      const timerSpan = document.getElementById('resend-timer');
-      if (timerSpan) timerSpan.textContent = resendSeconds;
+
     }, 1000);
   }
 
