@@ -377,15 +377,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Auto-Fill Demo OTP
-  btnFillOtp.addEventListener('click', () => {
-    DEMO_OTP.split('').forEach((char, i) => {
-      if (otpInputs[i]) otpInputs[i].value = char;
+  // Auto-Fill Demo OTP (button removed in production, guard null)
+  if (btnFillOtp) {
+    btnFillOtp.addEventListener('click', () => {
+      DEMO_OTP.split('').forEach((char, i) => {
+        if (otpInputs[i]) otpInputs[i].value = char;
+      });
+      errorOtp.style.display = 'none';
+      otpInputs[otpInputs.length - 1].focus();
+      showToast('Sandbox code auto-filled: 482910');
     });
-    errorOtp.style.display = 'none';
-    otpInputs[otpInputs.length - 1].focus();
-    showToast('Sandbox code auto-filled: 482910');
-  });
+  }
 
   // Resend Countdown
   function startResendCountdown() {
