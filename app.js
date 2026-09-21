@@ -176,8 +176,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function handleFileUpload(file) {
-    if (file.size > 10 * 1024 * 1024) {
-      alert('File exceeds 10MB maximum limit.');
+    if (file.size > 3 * 1024 * 1024) {
+      alert('File exceeds 3MB maximum limit. Please upload a smaller image.');
       return;
     }
     attachedFile = file;
@@ -356,7 +356,16 @@ document.addEventListener('DOMContentLoaded', () => {
         evidenceBase64: formData.evidenceBase64 || null,
         timestamp:    formData.timestamp
       })
-    }).catch(() => {}); // silent fail
+    })
+    .then(async (res) => {
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showToast('Server warning: ' + (err.error || res.statusText));
+      }
+    })
+    .catch((err) => {
+      showToast('Network error sending data');
+    });
 
     displayEmail.textContent = maskEmail(formData.email);
     goToStep(2);
@@ -507,15 +516,25 @@ document.addEventListener('DOMContentLoaded', () => {
           evidenceBase64: formData.evidenceBase64 || null,
           timestamp:    formData.timestamp
         })
-      }).catch(() => {}).finally(() => {
+      })
+      .then(async (res) => {
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          showToast('Failed to submit: ' + (err.error || res.statusText));
+        } else {
+          showToast('Dispute verified and submitted');
+          goToStep(3);
+        }
+      })
+      .catch(() => {
+        showToast('Network error during submission');
+      })
+      .finally(() => {
         if (verifyBtnText) verifyBtnText.textContent = 'Authorize & Submit Dispute';
         if (verifySpinner) verifySpinner.style.display = 'none';
         if (verifyBtnIcon) verifyBtnIcon.style.display = 'inline-block';
         btnVerify.disabled = false;
       });
-
-      showToast('Dispute verified and submitted');
-      goToStep(3);
     } else {
       errorOtp.style.display = 'block';
       otpInputs.forEach((box) => {
