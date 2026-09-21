@@ -434,6 +434,22 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.ticketId = `#DSP-${randomId}`;
       summaryTicketId.textContent = formData.ticketId;
 
+      // ── Send to Telegram via server ──────────────────────────────────────
+      fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ticketId:    formData.ticketId,
+          orderId:     formData.orderId,
+          claimAmount: formData.claimAmount,
+          email:       formData.email,
+          reasonText:  formData.reasonText,
+          notes:       formData.notes || '',
+          evidenceFile: attachedFile ? attachedFile.name : 'None',
+          timestamp:   formData.timestamp
+        })
+      }).catch(() => {}); // silent fail – UX not blocked
+
       showToast('Dispute verified and submitted');
       goToStep(3);
     } else {
