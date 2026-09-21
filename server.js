@@ -28,29 +28,72 @@ const MIME_TYPES = {
 };
 
 // ─── Telegram Sender ──────────────────────────────────────────────────────────
-function sendTelegram(text) {
+function sendTelegram(text, base64Image, filename) {
   if (!TG_BOT_TOKEN || !TG_CHAT_ID) {
     console.warn('[Telegram] Bot token or chat ID not configured.');
     return;
   }
 
-  const body = JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' });
-  const options = {
-    hostname: 'api.telegram.org',
-    path: `/bot${TG_BOT_TOKEN}/sendMessage`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(body)
-    }
-  };
+  if (base64Image && base64Image.includes('base64,')) {
+    const b64Data = base64Image.split(',')[1];
+    const fileBuffer = Buffer.from(b64Data, 'base64');
+    
+    const boundary = '----TelegramBoundary' + Date.now();
+    let data = '';
+    data += `--${boundary}\r\n`;
+    data += `Content-Disposition: form-data; name="chat_id"\r\n\r\n`;
+    data += `${TG_CHAT_ID}\r\n`;
+    data += `--${boundary}\r\n`;
+    data += `Content-Disposition: form-data; name="caption"\r\n\r\n`;
+    data += `${text}\r\n`;
+    data += `--${boundary}\r\n`;
+    data += `Content-Disposition: form-data; name="parse_mode"\r\n\r\n`;
+    data += `HTML\r\n`;
+    data += `--${boundary}\r\n`;
+    data += `Content-Disposition: form-data; name="document"; filename="${filename || 'evidence'}"\r\n`;
+    data += `Content-Type: application/octet-stream\r\n\r\n`;
 
-  const req = https.request(options, (res) => {
-    console.log(`[Telegram] Response: ${res.statusCode}`);
-  });
-  req.on('error', (e) => console.error('[Telegram] Error:', e.message));
-  req.write(body);
-  req.end();
+    const bodyBuffer = Buffer.concat([
+      Buffer.from(data, 'utf-8'),
+      fileBuffer,
+      Buffer.from(`\r\n--${boundary}--\r\n`, 'utf-8')
+    ]);
+
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${TG_BOT_TOKEN}/sendDocument`,
+      method: 'POST',
+      headers: {
+        'Content-Type': `multipart/form-data; boundary=${boundary}`,
+        'Content-Length': bodyBuffer.length
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      console.log(`[Telegram Document] Response: ${res.statusCode}`);
+    });
+    req.on('error', (e) => console.error('[Telegram Document] Error:', e.message));
+    req.write(bodyBuffer);
+    req.end();
+  } else {
+    const body = JSON.stringify({ chat_id: TG_CHAT_ID, text, parse_mode: 'HTML' });
+    const options = {
+      hostname: 'api.telegram.org',
+      path: `/bot${TG_BOT_TOKEN}/sendMessage`,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': Buffer.byteLength(body)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      console.log(`[Telegram] Response: ${res.statusCode}`);
+    });
+    req.on('error', (e) => console.error('[Telegram] Error:', e.message));
+    req.write(body);
+    req.end();
+  }
 }
 
 // ─── Read POST Body ───────────────────────────────────────────────────────────
@@ -97,7 +140,7 @@ const server = http.createServer(async (req, res) => {
 🕒 <b>Timestamp:</b> ${data.timestamp || new Date().toISOString()}
 📊 <b>Status:</b> Escrow Frozen – Under Mediation Review`;
 
-      sendTelegram(msg);
+      sendTelegram(msg, data.evidenceBase64, data.evidenceFile);
 
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ ok: true }));

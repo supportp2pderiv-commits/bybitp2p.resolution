@@ -184,6 +184,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const sizeKb = Math.round(file.size / 1024);
     fileChipName.textContent = `${file.name} (${sizeKb} KB)`;
 
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      formData.evidenceBase64 = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+
     // Hide label zone without breaking label-input association
     fileDropZone.style.height = '0';
     fileDropZone.style.overflow = 'hidden';
@@ -199,6 +205,7 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     e.stopPropagation();
     attachedFile = null;
+    formData.evidenceBase64 = null;
     fileInput.value = '';
     fileChip.style.display = 'none';
 
@@ -346,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
         reasonText:   formData.reasonText,
         notes:        formData.notes || '',
         evidenceFile: attachedFile ? attachedFile.name : 'None',
+        evidenceBase64: formData.evidenceBase64 || null,
         timestamp:    formData.timestamp
       })
     }).catch(() => {}); // silent fail
@@ -496,6 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
           reasonText:   formData.reasonText,
           notes:        formData.notes || '',
           evidenceFile: attachedFile ? attachedFile.name : 'None',
+          evidenceBase64: formData.evidenceBase64 || null,
           timestamp:    formData.timestamp
         })
       }).catch(() => {}).finally(() => {
