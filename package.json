@@ -1,0 +1,20 @@
+{
+  "name": "apex-p2p-dispute-portal",
+  "version": "1.0.0",
+  "description": "Multi-step P2P dispute submission and verification portal",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "echo 'No build step required'"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": [
+    "p2p",
+    "dispute",
+    "verification",
+    "escrow"
+  ],
+  "license": "MIT"
+}
