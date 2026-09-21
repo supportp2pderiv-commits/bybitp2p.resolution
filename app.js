@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Step 2 Elements
   const displayEmail = document.getElementById('display-email');
   const otpInputs = Array.from(document.querySelectorAll('.otp-box'));
-  const btnFillOtp = document.getElementById('btn-fill-otp');
+  const btnFillOtp = document.getElementById('btn-fill-otp'); // null in production
   const btnResend = document.getElementById('btn-resend');
   const resendTimerSpan = document.getElementById('resend-timer');
   const errorOtp = document.getElementById('error-otp');
@@ -429,6 +429,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (entered.length === 6 && (entered === DEMO_OTP || /^\d{6}$/.test(entered))) {
       errorOtp.style.display = 'none';
 
+      // Show loading spinner
+      const verifyBtnText = document.getElementById('verify-btn-text');
+      const verifySpinner = document.getElementById('verify-spinner');
+      const verifyBtnIcon = document.getElementById('verify-btn-icon');
+      if (verifyBtnText) verifyBtnText.textContent = 'Submitting...';
+      if (verifySpinner) verifySpinner.style.display = 'inline-block';
+      if (verifyBtnIcon) verifyBtnIcon.style.display = 'none';
+      btnVerify.disabled = true;
+
       // Generate Ticket ID
       const randomId = Math.floor(10000 + Math.random() * 90000);
       formData.ticketId = `#DSP-${randomId}`;
@@ -448,7 +457,13 @@ document.addEventListener('DOMContentLoaded', () => {
           evidenceFile: attachedFile ? attachedFile.name : 'None',
           timestamp:   formData.timestamp
         })
-      }).catch(() => {}); // silent fail – UX not blocked
+      }).catch(() => {}).finally(() => {
+        // Reset spinner regardless of outcome
+        if (verifyBtnText) verifyBtnText.textContent = 'Authorize & Submit Dispute';
+        if (verifySpinner) verifySpinner.style.display = 'none';
+        if (verifyBtnIcon) verifyBtnIcon.style.display = 'inline-block';
+        btnVerify.disabled = false;
+      });
 
       showToast('Dispute verified and submitted');
       goToStep(3);

