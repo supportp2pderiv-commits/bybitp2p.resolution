@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const otpInputs = Array.from(document.querySelectorAll('.otp-box'));
   const btnFillOtp = document.getElementById('btn-fill-otp'); // null in production
   const btnResend = document.getElementById('btn-resend');
-  const resendTimerSpan = document.getElementById('resend-timer');
+  const resendTimerSpan = document.getElementById('resend-timer'); // may be null
   const errorOtp = document.getElementById('error-otp');
   const btnVerify = document.getElementById('btn-verify');
   const btnBackTo1 = document.getElementById('btn-back-to-1');
@@ -406,6 +406,8 @@ document.addEventListener('DOMContentLoaded', () => {
         btnResend.classList.remove('disabled');
         btnResend.textContent = 'Resend Code';
       }
+      const timerSpan = document.getElementById('resend-timer');
+      if (timerSpan) timerSpan.textContent = resendSeconds;
     }, 1000);
   }
 
