@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
+    if (e.target.files && e.target.files.length > 0) {
       handleFileUpload(e.target.files[0]);
     }
   });
@@ -183,16 +183,31 @@ document.addEventListener('DOMContentLoaded', () => {
     attachedFile = file;
     const sizeKb = Math.round(file.size / 1024);
     fileChipName.textContent = `${file.name} (${sizeKb} KB)`;
-    fileDropZone.style.display = 'none';
+
+    // Hide label zone without breaking label-input association
+    fileDropZone.style.height = '0';
+    fileDropZone.style.overflow = 'hidden';
+    fileDropZone.style.padding = '0';
+    fileDropZone.style.border = 'none';
+    fileDropZone.style.margin = '0';
+
     fileChip.style.display = 'flex';
     showToast('Evidence document attached');
   }
 
-  btnRemoveFile.addEventListener('click', () => {
+  btnRemoveFile.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     attachedFile = null;
     fileInput.value = '';
     fileChip.style.display = 'none';
-    fileDropZone.style.display = 'block';
+
+    // Restore label zone
+    fileDropZone.style.height = '';
+    fileDropZone.style.overflow = '';
+    fileDropZone.style.padding = '';
+    fileDropZone.style.border = '';
+    fileDropZone.style.margin = '';
   });
 
   // =========================================================================
