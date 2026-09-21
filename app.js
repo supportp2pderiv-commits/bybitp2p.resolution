@@ -271,8 +271,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   }
 
-  disputeForm.addEventListener('submit', (e) => {
-    e.preventDefault();
+  const btnToStep2 = document.getElementById('btn-to-step-2');
+
+  function handleStep1Submit() {
     let valid = true;
 
     // Reset errors
@@ -336,7 +337,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     displayEmail.textContent = maskEmail(formData.email);
     goToStep(2);
-  });
+  }
+
+  // Wire button click AND form submit (Enter key support)
+  btnToStep2.addEventListener('click', handleStep1Submit);
+  disputeForm.addEventListener('submit', (e) => { e.preventDefault(); handleStep1Submit(); });
+
 
   orderIdInput.addEventListener('input', () => {
     groupOrderId.classList.remove('has-error');
