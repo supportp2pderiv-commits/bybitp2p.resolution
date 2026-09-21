@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: apex-p2p-portal
+    name: bybit-p2p-resolution
     env: node
     plan: free
     buildCommand: npm run build

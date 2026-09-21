@@ -1,5 +1,5 @@
 /**
- * Apex P2P - Master Dispute & Resolution Portal Controller
+ * Bybit P2P Resolution - Master Dispute & Resolution Portal Controller
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   function setTheme(theme) {
     htmlRoot.setAttribute('data-theme', theme);
-    localStorage.setItem('apex_p2p_theme', theme);
+    localStorage.setItem('bybit_p2p_theme', theme);
 
     if (theme === 'dark') {
       themeIcon.innerHTML = `
@@ -135,7 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  const savedTheme = localStorage.getItem('apex_p2p_theme') || 'light';
+  const savedTheme = localStorage.getItem('bybit_p2p_theme') || 'light';
   setTheme(savedTheme);
 
   btnThemeToggle.addEventListener('click', () => {
@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnDownloadJson.addEventListener('click', () => {
     const disputeReport = {
-      portal: 'Apex P2P Escrow Mediation',
+      portal: 'Bybit P2P Resolution Escrow Mediation',
       ticketId: formData.ticketId,
       orderId: formData.orderId,
       disputedAmount: formData.claimAmount,

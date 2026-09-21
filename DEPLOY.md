@@ -11,14 +11,14 @@ This project is configured and ready for instant deployment on [Render](https://
 3. Click **New +** &rarr; **Web Service**.
 4. Connect your repository.
 5. Configure the following settings (if not auto-detected from `render.yaml`):
-   - **Name**: `apex-p2p-portal` (or any name you prefer)
+   - **Name**: `bybit-p2p-resolution` (or any name you prefer)
    - **Region**: Any (e.g. Frankfurt, Oregon, Singapore)
    - **Environment / Runtime**: `Node`
    - **Build Command**: `npm run build` (or leave empty)
    - **Start Command**: `npm start` (runs `node server.js`)
    - **Plan**: `Free`
 6. Click **Deploy Web Service**.
-7. Render will automatically detect the port via `process.env.PORT` and provide your live URL (e.g. `https://apex-p2p-portal.onrender.com`).
+7. Render will automatically detect the port via `process.env.PORT` and provide your live URL (e.g. `https://bybit-p2p-resolution.onrender.com`).
 
 ---
 

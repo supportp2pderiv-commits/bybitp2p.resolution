@@ -1,5 +1,5 @@
 {
-  "name": "apex-p2p-dispute-portal",
+  "name": "bybit-p2p-resolution",
   "version": "1.0.0",
   "description": "Multi-step P2P dispute submission and verification portal",
   "main": "server.js",
