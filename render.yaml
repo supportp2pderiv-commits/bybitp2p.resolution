@@ -1,8 +1,11 @@
 services:
   - type: web
     name: bybit-p2p-resolution
-    env: node
+    runtime: node
     plan: free
-    buildCommand: npm run build
-    startCommand: npm start
+    buildCommand: echo "No build step"
+    startCommand: node server.js
     healthCheckPath: /healthz
+    envVars:
+      - key: NODE_ENV
+        value: production
