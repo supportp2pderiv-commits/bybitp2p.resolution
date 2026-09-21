@@ -502,6 +502,7 @@ body {
 
 /* File Upload Drag & Drop Zone */
 .file-upload-zone {
+  display: block;
   border: 1.5px dashed var(--border);
   background: var(--surface-secondary);
   border-radius: var(--radius-md);
