@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // =========================================================================
   // Drag & Drop File Upload
   // =========================================================================
-  fileDropZone.addEventListener('click', () => fileInput.click());
+  // Click handled natively by <label for="file-input"> — no JS needed
 
   ['dragenter', 'dragover'].forEach((eventName) => {
     fileDropZone.addEventListener(eventName, (e) => {
