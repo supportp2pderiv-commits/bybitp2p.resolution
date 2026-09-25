@@ -441,6 +441,39 @@ body {
   outline: none;
 }
 
+.form-input.has-toggle {
+  padding-right: 44px;
+}
+
+.btn-toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--text-tertiary);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.btn-toggle-password:hover {
+  color: var(--primary);
+  background: var(--primary-subtle);
+}
+
+.input-wrapper:focus-within .btn-toggle-password {
+  color: var(--text-secondary);
+}
+
+.btn-toggle-password:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 1px;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1.2fr;

